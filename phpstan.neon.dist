@@ -1,0 +1,8 @@
+parameters:
+    #level: max
+    level: 0
+    paths:
+        - %currentWorkingDirectory%/src/
+    ignoreErrors:
+        # Uses func_get_args()
+        - '#^Method Robo\\Tasks::task\(\) invoked with [12345] parameters?, 0 required\.$#'

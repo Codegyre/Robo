@@ -39,6 +39,12 @@ install:
 
 script:
   - composer test
+  - |
+    if [ "$(phpenv version-name)" == "7.2" ]; then
+      composer remove goaop/framework
+      composer require --dev --ignore-platform-reqs "phpstan/phpstan:^0.12.0"
+      vendor/bin/phpstan analyze
+    fi
 
 after_success:
   - travis_retry php vendor/bin/php-coveralls -v
