@@ -261,13 +261,13 @@ class Ssh extends BaseTask implements CommandInterface, SimulatedInterface
      */
     protected function sshCommand($command)
     {
-        $command = $this->receiveCommand($command);
+        $command = static::escape($this->receiveCommand($command));
         $sshOptions = $this->arguments;
         $hostSpec = $this->hostname;
         if ($this->user) {
             $hostSpec = $this->user . '@' . $hostSpec;
         }
 
-        return "ssh{$sshOptions} {$hostSpec} '{$command}'";
+        return "ssh{$sshOptions} {$hostSpec} {$command}";
     }
 }
