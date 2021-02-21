@@ -245,10 +245,41 @@ class Pack extends BaseTask implements PrintedInterface
                     if (!$zip->addFile($file->getRealpath(), "{$placementLocation}/{$relativePathname}")) {
                         return Result::error($this, "Could not add directory $filesystemLocation to the archive; error adding {$file->getRealpath()}.");
                     }
+                    // This will retain the file permissions for *nix systems
+                    // Source: https://github.com/consolidation/Robo/pull/888
+                    if (stripos(PHP_OS, 'WIN') !== 0) {
+                        $zip->setExternalAttributesName(
+                            "{$placementLocation}/{$relativePathname}",
+                            \ZipArchive::OPSYS_UNIX,
+                            $file->getPerms() << 16
+                        );
+                    } else {
+                        // For windows we force 0644 for all the files
+                        // Because it seems when the archive is created on Windows the files by default has
+                        // 0666 permission (can be seen when unpacked on a *nix system)
+                        $zip->setExternalAttributesName(
+                            "{$placementLocation}/{$relativePathname}",
+                            \ZipArchive::OPSYS_WINDOWS_NTFS,
+                            33188 // Is the decimal for 100644
+                        );
+                    }
                 }
             } elseif (is_file($filesystemLocation)) {
                 if (!$zip->addFile($filesystemLocation, $placementLocation)) {
                     return Result::error($this, "Could not add file $filesystemLocation to the archive.");
+                }
+                if (stripos(PHP_OS, 'WIN') !== 0) {
+                    $zip->setExternalAttributesName(
+                        $placementLocation,
+                        \ZipArchive::OPSYS_UNIX,
+                        fileperms($filesystemLocation) << 16
+                    );
+                } else {
+                    $zip->setExternalAttributesName(
+                        $placementLocation,
+                        \ZipArchive::OPSYS_WINDOWS_NTFS,
+                        33188
+                    );
                 }
             } else {
                 return Result::error($this, "Could not find $filesystemLocation for the archive.");
