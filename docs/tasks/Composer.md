@@ -423,3 +423,82 @@ $this->taskComposerValidate()->run();
 * `options(array $options, $separator = null)`  Pass multiple options to executable. The associative array contains
 * `optionList($option, $value = null, $separator = null)`  Pass an option with multiple values to executable. Value can be a string or array.
 
+## RunScript
+
+
+Composer Run Script
+
+``` php
+<?php
+// simple execution
+$this->taskComposerRunScript()->arg('myscript')->run();
+
+// pass an option to the script
+$this->taskComposerRunScript()->arg('myscript')->scriptOption('foo')->run();
+?>
+```
+
+* `preferDist($preferDist = null)`  adds `prefer-dist` option to composer
+* `preferSource()`  adds `prefer-source` option to composer
+* `dev($dev = null)`  adds `dev` option to composer
+* `noDev()`  adds `no-dev` option to composer
+* `ansi($ansi = null)`  adds `ansi` option to composer
+* `noAnsi()`  adds `no-ansi` option to composer
+* `interaction($interaction = null)`   * `param bool` $interaction
+* `noInteraction()`  adds `no-interaction` option to composer
+* `optimizeAutoloader($optimize = null)`  adds `optimize-autoloader` option to composer
+* `ignorePlatformRequirements($ignore = null)`  adds `ignore-platform-reqs` option to composer
+* `disablePlugins($disable = null)`  disable plugins
+* `noScripts($disable = null)`  skip scripts
+* `workingDir($dir)`  adds `--working-dir $dir` option to composer
+* `buildCommand()`  Copy class fields into command options as directed.
+* `dir($dir)`  Changes working directory of command
+* `arg($arg)`  Pass argument to executable. Its value will be automatically escaped.
+* `args($args)`  Pass methods parameters as arguments to executable. Argument values
+* `rawArg($arg)`  Pass the provided string in its raw (as provided) form as an argument to executable.
+* `option($option, $value = null, $separator = null)`  Pass option to executable. Options are prefixed with `--` , value can be provided in second parameter.
+* `options(array $options, $separator = null)`  Pass multiple options to executable. The associative array contains
+* `optionList($option, $value = null, $separator = null)`  Pass an option with multiple values to executable. Value can be a string or array.
+* `scriptOption($option, $value = null, $separator = null)`  Pass option to the script. Options are prefixed with `--` , value can be provided in second parameter.
+
+## Exec
+
+
+Composer Exec
+
+``` php
+<?php
+// simple execution
+$this->taskComposerExec()->arg('mycommand')->run();
+
+// pass an option to the command
+$this->taskComposerExec()->arg('mycommand')->scriptOption('foo')->run();
+
+// execute a command installed globally
+$this->taskComposerExec('composer', true)->arg('mycommand')->run();
+
+?>
+```
+
+* `preferDist($preferDist = null)`  adds `prefer-dist` option to composer
+* `preferSource()`  adds `prefer-source` option to composer
+* `dev($dev = null)`  adds `dev` option to composer
+* `noDev()`  adds `no-dev` option to composer
+* `ansi($ansi = null)`  adds `ansi` option to composer
+* `noAnsi()`  adds `no-ansi` option to composer
+* `interaction($interaction = null)`   * `param bool` $interaction
+* `noInteraction()`  adds `no-interaction` option to composer
+* `optimizeAutoloader($optimize = null)`  adds `optimize-autoloader` option to composer
+* `ignorePlatformRequirements($ignore = null)`  adds `ignore-platform-reqs` option to composer
+* `disablePlugins($disable = null)`  disable plugins
+* `noScripts($disable = null)`  skip scripts
+* `workingDir($dir)`  adds `--working-dir $dir` option to composer
+* `buildCommand()`  Copy class fields into command options as directed.
+* `dir($dir)`  Changes working directory of command
+* `arg($arg)`  Pass argument to executable. Its value will be automatically escaped.
+* `args($args)`  Pass methods parameters as arguments to executable. Argument values
+* `rawArg($arg)`  Pass the provided string in its raw (as provided) form as an argument to executable.
+* `option($option, $value = null, $separator = null)`  Pass option to executable. Options are prefixed with `--` , value can be provided in second parameter.
+* `options(array $options, $separator = null)`  Pass multiple options to executable. The associative array contains
+* `optionList($option, $value = null, $separator = null)`  Pass an option with multiple values to executable. Value can be a string or array.
+* `scriptOption($option, $value = null, $separator = null)`  Pass option to the script. Options are prefixed with `--` , value can be provided in second parameter.

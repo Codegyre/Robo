@@ -103,4 +103,27 @@ trait Tasks
     {
         return $this->task(CheckPlatformReqs::class, $pathToComposer);
     }
+
+    /**
+     * @param bool $global Run "composer global exec"
+     * @param null|string $pathToComposer Path to Composer executable
+     *
+     * @return \Robo\Task\Composer\Exec|\Robo\Collection\CollectionBuilder
+     */
+    protected function taskComposerExec($pathToComposer = null, $global = false)
+    {
+        return $this->task(Exec::class, $pathToComposer, $global);
+    }
+
+    /**
+     * Create a Composer script command.
+     *
+     * @param null|string $pathToComposer Path to Composer executable
+     *
+     * @return \Robo\Task\Composer\RunScript|\Robo\Collection\CollectionBuilder
+     */
+    protected function taskComposerRunScript($pathToComposer = null)
+    {
+        return $this->task(RunScript::class, $pathToComposer);
+    }
 }
