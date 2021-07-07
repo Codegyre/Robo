@@ -345,13 +345,34 @@ class Runner implements ContainerAwareInterface
         $container = Robo::getContainer();
         $roboCommandFileInstance = $this->instantiateCommandClass($commandClass);
         if (!$roboCommandFileInstance) {
-            return;
+            return null;
         }
 
         // Register commands for all of the public methods in the RoboFile.
         $commandFactory = $container->get('commandFactory');
         $commandList = $commandFactory->createCommandsFromClass($roboCommandFileInstance);
+
+        // Get all of the hidden commands if there is a $hiddenCommands property in $roboCommandFileInstance
+        $hiddenCommands = $roboCommandFileInstance->hiddenCommands ?? [];
+        // If $hiddenCommands is a string then convert it to an array
+        if (is_string($hiddenCommands)) {
+            $hiddenCommands = [$hiddenCommands];
+        }
+        // If $hiddenCommands isn't an array at this point then make it an empty array
+        if (!is_array($hiddenCommands)) {
+            $hiddenCommands = [];
+        }
+
         foreach ($commandList as $command) {
+            // If the command is in the $hiddenCommands array then don't add the command
+            if (in_array($command->getName(), $hiddenCommands)) {
+                continue;
+            }
+            // If the command has a @hidden annotation then don't add the command
+            $annotations = $command->getAnnotationData();
+            if ($annotations && $annotations->has('hidden')) {
+                continue;
+            }
             $app->add($command);
         }
         return $roboCommandFileInstance;
