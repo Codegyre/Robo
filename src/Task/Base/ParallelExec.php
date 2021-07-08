@@ -52,6 +52,11 @@ class ParallelExec extends BaseTask implements CommandInterface, PrintedInterfac
     protected $isPrinted = false;
 
     /**
+     * @var bool
+     */
+    protected $stopAllOnAnyFailure = false;
+
+    /**
      * {@inheritdoc}
      */
     public function getPrinted()
@@ -135,6 +140,17 @@ class ParallelExec extends BaseTask implements CommandInterface, PrintedInterfac
     }
 
     /**
+     * @param bool $stopAllOnAnyFailure
+     *
+     * @return $this
+     */
+    public function stopAllOnAnyFailure($stopAllOnAnyFailure)
+    {
+        $this->stopAllOnAnyFailure = $stopAllOnAnyFailure;
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getCommand()
@@ -185,6 +201,12 @@ class ParallelExec extends BaseTask implements CommandInterface, PrintedInterfac
                         }
                     }
                     unset($running[$k]);
+                    if ($this->stopAllOnAnyFailure && $process->getExitCode() !== 0) {
+                        foreach ($running as $otherRunningProcess) {
+                            $otherRunningProcess->stop();
+                        }
+                        $queue = [];
+                    }
                 }
             }
             if (empty($running) && empty($queue)) {
