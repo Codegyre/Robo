@@ -15,7 +15,51 @@ trait CommandArguments
     protected $arguments = '';
 
     /**
-     * Pass argument to executable. Its value will be automatically escaped.
+     * @var array
+     */
+    protected $argumentsEnv = [];
+
+
+    /**
+     * Adds an argument and its placeholder value, to be executed
+     *
+     * @param string $argument
+     * @param string|null $key
+     * @param string|null $prefix
+     * @param string|null $separator
+     * @return void
+     */
+    protected function addArgument($argument, $key = null, $prefix = null, $separator = ' ')
+    {
+        if (is_null($key)) {
+            $key = "arg" . md5($argument);
+        }
+
+        $this->arguments .= null == $prefix ? '' : $separator . $prefix;
+        if (!is_null($argument)) {
+            $this->arguments .= ' "${:' . $key . '}"';
+            $this->argumentsEnv[$key] = $argument;
+        }
+    }
+
+    /**
+     * Escape a command line argument.
+     *
+     * @param string $argument
+     * @return string
+     *
+     * @deprecated Use \Robo\Common\ProcessUtils::escapeArgument() instead.
+     */
+    public static function escape($argument)
+    {
+        if (preg_match('/^[a-zA-Z0-9\/\.@~_-]+$/', $argument)) {
+            return $argument;
+        }
+        return ProcessUtils::escapeArgument($argument);
+    }
+
+    /**
+     * Pass argument to executable. It will be changed to a placeholder.
      *
      * @param string $arg
      *
@@ -27,8 +71,8 @@ trait CommandArguments
     }
 
     /**
-     * Pass methods parameters as arguments to executable. Argument values
-     * are automatically escaped.
+     * Pass methods parameters as arguments to executable. Argument are
+     * automatically passed as placeholders
      *
      * @param string|string[] $args
      *
@@ -40,7 +84,10 @@ trait CommandArguments
         if (!is_array($args)) {
             $args = $func_args;
         }
-        $this->arguments .= ' ' . implode(' ', array_map('static::escape', $args));
+
+        foreach ($args as $arg) {
+            $this->addArgument($arg);
+        }
         return $this;
     }
 
@@ -59,24 +106,8 @@ trait CommandArguments
     }
 
     /**
-     * Escape the provided value, unless it contains only alphanumeric
-     * plus a few other basic characters.
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public static function escape($value)
-    {
-        if (preg_match('/^[a-zA-Z0-9\/\.@~_-]+$/', $value)) {
-            return $value;
-        }
-        return ProcessUtils::escapeArgument($value);
-    }
-
-    /**
      * Pass option to executable. Options are prefixed with `--` , value can be provided in second parameter.
-     * Option values are automatically escaped.
+     * Option values are automatically passed as placeholders.
      *
      * @param string $option
      * @param string $value
@@ -89,15 +120,15 @@ trait CommandArguments
         if ($option !== null and strpos($option, '-') !== 0) {
             $option = "--$option";
         }
-        $this->arguments .= null == $option ? '' : " " . $option;
-        $this->arguments .= null == $value ? '' : $separator . static::escape($value);
+
+        $this->addArgument($value, null, $option, $separator);
         return $this;
     }
 
     /**
      * Pass multiple options to executable. The associative array contains
      * the key:value pairs that become `--key value`, for each item in the array.
-     * Values are automatically escaped.
+     * Values are passed as placeholders.
      *
      * @param array $options
      * @param string $separator

@@ -29,6 +29,10 @@ class ExecTest extends TestCase
 
     public function testMultipleEnvVars()
     {
+        if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
+          $this->markTestSkipped('Environment variables is not supported on Windows.');
+        }
+
         $task = $this->taskExec('env')->interactive(false);
         $task->env('FOO', 'BAR');
         $task->env('BAR', 'BAZ');

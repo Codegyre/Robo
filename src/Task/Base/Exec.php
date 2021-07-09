@@ -11,6 +11,7 @@ use Symfony\Component\Process\Process;
 use Robo\Result;
 use Robo\Common\CommandReceiver;
 use Robo\Common\ExecOneCommand;
+use Robo\Common\ProcessUtils;
 
 /**
  * Executes shell script. Closes it when running in background mode.
@@ -98,8 +99,9 @@ class Exec extends BaseTask implements CommandInterface, PrintedInterface, Simul
      */
     protected function getCommandDescription()
     {
-        return $this->getCommand();
+        return ProcessUtils::replacePlaceholders($this->getCommand(), $this->argumentsEnv);
     }
+
     /**
      * {@inheritdoc}
      */
@@ -132,7 +134,7 @@ class Exec extends BaseTask implements CommandInterface, PrintedInterface, Simul
     {
         $this->hideProgressIndicator();
         // TODO: Symfony 4 requires that we supply the working directory.
-        $result_data = $this->execute(Process::fromShellCommandline($this->getCommand(), getcwd()));
+        $result_data = $this->execute(Process::fromShellCommandline($this->getCommand(), getcwd(), $this->argumentsEnv));
         $result = new Result(
             $this,
             $result_data->getExitCode(),

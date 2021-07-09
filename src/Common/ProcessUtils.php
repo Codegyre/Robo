@@ -10,9 +10,9 @@ namespace Robo\Common;
 use Symfony\Component\Process\Exception\InvalidArgumentException;
 
 /**
- * ProcessUtils is a bunch of utility methods. We want to allow Robo 1.x
- * to work with Symfony 4.x while remaining backwards compatibility. This
- * requires us to replace some deprecated functionality removed in Symfony.
+ * ProcessUtils is a bunch of utility methods.
+ * These methods are usually private, and are needed to execute and escape
+ * some functions for display purposes
  */
 class ProcessUtils
 {
@@ -24,58 +24,47 @@ class ProcessUtils
     }
 
     /**
-     * Escapes a string to be used as a shell argument.
+     * Symfony Process has a private method to replace Placeholders in command lines,
+     * which we use to rebuild a Command Description.
      *
-     * This method is a copy of a method that was deprecated by Symfony 3.3 and
-     * removed in Symfony 4; it will be removed once there is an actual
-     * replacement for escapeArgument.
-     *
-     * @param string $argument
-     *   The argument that will be escaped.
-     *
+     * @param string $commandline
+     * @param array $env
      * @return string
-     *   The escaped argument.
      */
-    public static function escapeArgument($argument)
+    public static function replacePlaceholders(string $commandline, array $env)
     {
-        //Fix for PHP bug #43784 escapeshellarg removes % from given string
-        //Fix for PHP bug #49446 escapeshellarg doesn't work on Windows
-        //@see https://bugs.php.net/bug.php?id=43784
-        //@see https://bugs.php.net/bug.php?id=49446
-        if ('\\' === DIRECTORY_SEPARATOR) {
-            if ('' === $argument) {
-                return escapeshellarg($argument);
+        return preg_replace_callback('/"\$\{:([_a-zA-Z]++[_a-zA-Z0-9]*+)\}"/', function ($matches) use ($commandline, $env) {
+            if (!isset($env[$matches[1]]) || false === $env[$matches[1]]) {
+                throw new InvalidArgumentException(sprintf('Command line is missing a value for parameter "%s": ', $matches[1]).$commandline);
             }
 
-            $escapedArgument = '';
-            $quote = false;
-            foreach (preg_split('/(")/', $argument, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) as $part) {
-                if ('"' === $part) {
-                    $escapedArgument .= '\\"';
-                } elseif (self::isSurroundedBy($part, '%')) {
-                    // Avoid environment variable expansion
-                    $escapedArgument .= '^%"' . substr($part, 1, -1) . '"^%';
-                } else {
-                    // escape trailing backslash
-                    if ('\\' === substr($part, -1)) {
-                        $part .= '\\';
-                    }
-                    $quote = true;
-                    $escapedArgument .= $part;
-                }
-            }
-            if ($quote) {
-                $escapedArgument = '"' . $escapedArgument . '"';
-            }
-
-            return $escapedArgument;
-        }
-
-        return "'" . str_replace("'", "'\\''", $argument) . "'";
+            return self::escapeArgument($env[$matches[1]]);
+        }, $commandline);
     }
 
-    private static function isSurroundedBy($arg, $char)
+    /**
+     * Used by Symfony Process to form the final command line, with escaped parameters.
+     * Robo uses placeholders to handle the process arguments without escaping the whole string.
+     *
+     * @param string|null $argument
+     * @return string
+     */
+    public static function escapeArgument(?string $argument): string
     {
-        return 2 < strlen($arg) && $char === $arg[0] && $char === $arg[strlen($arg) - 1];
+        if ('' === $argument || null === $argument) {
+            return '""';
+        }
+        if ('\\' !== \DIRECTORY_SEPARATOR) {
+            return "'".str_replace("'", "'\\''", $argument)."'";
+        }
+        if (false !== strpos($argument, "\0")) {
+            $argument = str_replace("\0", '?', $argument);
+        }
+        if (!preg_match('/[\/()%!^"<>&|\s]/', $argument)) {
+            return $argument;
+        }
+        $argument = preg_replace('/(\\\\+)$/', '$1$1', $argument);
+
+        return '"'.str_replace(['"', '^', '%', '!', "\n"], ['""', '"^^"', '"^%"', '"^!"', '!LF!'], $argument).'"';
     }
 }

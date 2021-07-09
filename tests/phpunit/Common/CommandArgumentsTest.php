@@ -13,58 +13,33 @@ class CommandArgumentsTest extends TestCase
     public function casesArgs() {
         return [
             'no arguments' => [
-                ' ',
-                ' ',
+                '',
+                '',
                 [],
             ],
             'empty string' => [
-                " ''",
                 ' ""',
-                [''],
+                ' ""',
+                [""],
             ],
             'space' => [
                 " ' '",
                 ' " "',
                 [' '],
             ],
-            'no escape - a' => [
-                " a",
-                " a",
-                ['a'],
-            ],
-            'no escape - A' => [
-                " A",
-                " A",
-                ['A'],
-            ],
-            'no escape - 0' => [
-                " 0",
-                " 0",
-                ['0'],
-            ],
-            'no escape - --' => [
-                " --",
-                " --",
-                ['--'],
-            ],
-            'no escape - @_~.' => [
-                " @_~.",
-                " @_~.",
-                ['@_~.'],
-            ],
             '$' => [
                 " 'a\$b'",
-                ' "a$b"',
+                ' a$b',
                 ['a$b'],
             ],
             '*' => [
                 " 'a*b'",
-                ' "a*b"',
+                ' a*b',
                 ['a*b'],
             ],
             'multi' => [
-                " '' a '\$PATH'",
-                ' "" a "$PATH"',
+                ' "" \'a\' \'$PATH\'',
+                ' "" a $PATH',
                 ['', 'a', '$PATH'],
             ],
         ];

@@ -6,6 +6,7 @@ use Robo\Contract\CommandInterface;
 use Robo\Task\BaseTask;
 use Robo\Exception\TaskException;
 use Robo\Common\ExecOneCommand;
+use Robo\Common\ProcessUtils;
 
 /**
  * Executes rsync in a flexible manner.
@@ -430,6 +431,11 @@ class Rsync extends BaseTask implements CommandInterface
         $command = $this->getCommand();
 
         return $this->executeCommand($command);
+    }
+
+    public function getCommandDescription()
+    {
+        return ProcessUtils::replacePlaceholders($this->getCommand(), $this->argumentsEnv);
     }
 
     /**

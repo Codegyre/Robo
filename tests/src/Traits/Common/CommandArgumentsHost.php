@@ -3,6 +3,7 @@
 namespace Robo\Traits\Common;
 
 use Robo\Common\CommandArguments;
+use Robo\Common\ProcessUtils;
 
 class CommandArgumentsHost
 {
@@ -13,6 +14,6 @@ class CommandArgumentsHost
      */
     public function getArguments()
     {
-        return $this->arguments;
+        return ProcessUtils::replacePlaceholders($this->arguments, $this->argumentsEnv);
     }
 }

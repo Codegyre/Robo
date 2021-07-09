@@ -7,9 +7,9 @@ class RsyncTest extends TestCase
     // tests
     public function testRsync()
     {
-        $linuxCmd = 'rsync --recursive --exclude .git --exclude .svn --exclude .hg --checksum --whole-file --verbose --progress --human-readable --stats src/ \'dev@localhost:/var/www/html/app/\'';
+        $linuxCmd = "rsync --recursive --exclude '.git' --exclude '.svn' --exclude '.hg' --checksum --whole-file --verbose --progress --human-readable --stats 'src/' 'dev@localhost:/var/www/html/app/'";
 
-        $winCmd = 'rsync --recursive --exclude .git --exclude .svn --exclude .hg --checksum --whole-file --verbose --progress --human-readable --stats src/ "dev@localhost:/var/www/html/app/"';
+        $winCmd = 'rsync --recursive --exclude .git --exclude .svn --exclude .hg --checksum --whole-file --verbose --progress --human-readable --stats "src/" "dev@localhost:/var/www/html/app/"';
 
         $cmd = stripos(PHP_OS, 'WIN') === 0 ? $winCmd : $linuxCmd;
 
@@ -28,7 +28,7 @@ class RsyncTest extends TestCase
                 ->progress()
                 ->humanReadable()
                 ->stats()
-                ->getCommand()
+                ->getCommandDescription()
         );
 
         $linuxCmd = 'rsync \'src/foo bar/baz\' \'dev@localhost:/var/path/with/a space\'';
@@ -45,12 +45,12 @@ class RsyncTest extends TestCase
                 ->toHost('localhost')
                 ->toUser('dev')
                 ->toPath('/var/path/with/a space')
-                ->getCommand()
+                ->getCommandDescription()
         );
 
-        $linuxCmd = 'rsync src/foo src/bar \'dev@localhost:/var/path/with/a space\'';
+        $linuxCmd = "rsync 'src/foo' 'src/bar' 'dev@localhost:/var/path/with/a space'";
 
-        $winCmd = 'rsync src/foo src/bar "dev@localhost:/var/path/with/a space"';
+        $winCmd = 'rsync "src/foo" "src/bar" "dev@localhost:/var/path/with/a space"';
 
         $cmd = stripos(PHP_OS, 'WIN') === 0 ? $winCmd : $linuxCmd;
 
@@ -62,12 +62,12 @@ class RsyncTest extends TestCase
                 ->toHost('localhost')
                 ->toUser('dev')
                 ->toPath('/var/path/with/a space')
-                ->getCommand()
+                ->getCommandDescription()
         );
 
-        $linuxCmd = 'rsync --rsh \'ssh -i ~/.ssh/id_rsa\' src/foo \'dev@localhost:/var/path\'';
+        $linuxCmd = "rsync --rsh 'ssh -i ~/.ssh/id_rsa' 'src/foo' 'dev@localhost:/var/path'";
 
-        $winCmd = 'rsync --rsh "ssh -i ~/.ssh/id_rsa" src/foo "dev@localhost:/var/path"';
+        $winCmd = 'rsync --rsh "ssh -i ~/.ssh/id_rsa" "src/foo" "dev@localhost:/var/path"';
 
         $cmd = stripos(PHP_OS, 'WIN') === 0 ? $winCmd : $linuxCmd;
 
@@ -80,7 +80,7 @@ class RsyncTest extends TestCase
                 ->toUser('dev')
                 ->toPath('/var/path')
                 ->remoteShell('ssh -i ~/.ssh/id_rsa')
-                ->getCommand()
+                ->getCommandDescription()
         );
     }
 }
